@@ -60,7 +60,7 @@ public class DfaMinimization {
             Map<String, Set<String>> refined = new LinkedHashMap<>();
             Map<String, Integer> groupOf = groupLookup(groups);
             for (String state : reachable) {
-                StringBuilder signature = new StringBuilder(finals.contains(state) ? "F" : "N");
+                StringBuilder signature = new StringBuilder().append(groupOf.get(state));
                 for (char symbol : alphabet.toCharArray()) {
                     signature.append(':').append(groupOf.get(transitions.get(state).get(symbol)));
                 }
