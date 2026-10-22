@@ -1,61 +1,50 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 public class DfaSimulation {
-    public static void run(Scanner scanner) {
-        System.out.println("\nDFA Simulation");
-        System.out.print("States (space-separated): ");
-        String[] states = scanner.nextLine().trim().split("\\s+");
-        System.out.print("Alphabet (single characters, e.g. 01): ");
-        String alphabet = scanner.nextLine().trim();
-        System.out.print("Start state: ");
-        String start = scanner.nextLine().trim();
-        System.out.print("Final states (space-separated, or -): ");
-        Set<String> finals = readSet(scanner.nextLine());
+    public static void run(Scanner sc) {
+        System.out.print("Enter number of states: ");
+        int n = sc.nextInt();
 
-        Map<String, Map<Character, String>> transitions = new HashMap<>();
-        System.out.println("For each state, enter destinations in alphabet order.");
-        for (String state : states) {
-            System.out.print(state + ": ");
-            String[] destinations = scanner.nextLine().trim().split("\\s+");
-            Map<Character, String> row = new HashMap<>();
-            for (int i = 0; i < alphabet.length(); i++) {
-                row.put(alphabet.charAt(i), destinations[i]);
-            }
-            transitions.put(state, row);
+        int[][] transition = new int[n][2];
+        System.out.println("Enter transitions for 0 and 1 for each state:");
+        for (int i = 0; i < n; i++) {
+            System.out.print("State q" + i + " (on 0 and 1): ");
+            transition[i][0] = sc.nextInt();
+            transition[i][1] = sc.nextInt();
         }
 
-        System.out.print("Input string (blank for empty): ");
-        String input = scanner.nextLine();
-        String current = start;
-        boolean valid = true;
-        for (char symbol : input.toCharArray()) {
-            if (!alphabet.contains(String.valueOf(symbol))
-                    || !transitions.containsKey(current)
-                    || !transitions.get(current).containsKey(symbol)) {
-                valid = false;
-                break;
-            }
-            current = transitions.get(current).get(symbol);
+        System.out.print("Enter number of final states: ");
+        int f = sc.nextInt();
+        boolean[] finalState = new boolean[n];
+        System.out.print("Enter final states: ");
+        for (int i = 0; i < f; i++) {
+            finalState[sc.nextInt()] = true;
         }
 
-        if (valid && finals.contains(current)) {
+        sc.nextLine(); // consume trailing newline
+        System.out.print("Enter a binary string: ");
+        String input = sc.nextLine();
+
+        int currentState = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char symbol = input.charAt(i);
+            if (symbol != '0' && symbol != '1') {
+                System.out.println("Invalid string");
+                return;
+            }
+            int column = symbol - '0';
+            currentState = transition[currentState][column];
+        }
+
+        if (finalState[currentState]) {
             System.out.println("Accepted");
         } else {
-            System.out.println("Rejected");
+            System.out.println("Declined");
         }
     }
 
-    private static Set<String> readSet(String line) {
-        Set<String> result = new HashSet<>();
-        if (!line.trim().equals("-")) {
-            for (String item : line.trim().split("\\s+")) {
-                result.add(item);
-            }
-        }
-        return result;
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        run(sc);
     }
 }

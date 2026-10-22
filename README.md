@@ -1,12 +1,12 @@
 # Automata Programs (Java)
 
-Five command-line programs for basic automata theory tasks:
+Five simple, exam-friendly command-line programs for basic automata theory tasks:
 
-1. DFA simulation
-2. NFA-to-DFA conversion (without epsilon transitions)
-3. DFA minimization
-4. Intersection of two DFAs
-5. PDA simulation (deterministic, without epsilon moves)
+1. **DFA Simulation** (`DfaSimulation.java`): Simulates a binary DFA on an input string.
+2. **NFA to DFA Conversion** (`NfaToDfa.java`): Performs subset construction on an NFA.
+3. **DFA Minimization** (`DfaMinimization.java`): Finds equivalent states using the table-filling method.
+4. **Intersection of Two DFAs** (`DfaIntersection.java`): Computes the product DFA transitions and final states.
+5. **PDA Simulation** (`PdaSimulation.java`): Deterministic stack-based simulation recognizing $a^n b^n$.
 
 ## Run
 
@@ -17,6 +17,12 @@ javac -d out src/*.java
 java -cp out Main
 ```
 
-All interaction and output are in the command line. DFA alphabet symbols and
-input symbols are single characters. Enter states separated by spaces. Use `-`
-when there are no final states or no NFA destination states.
+Each program can also be executed standalone:
+
+```bash
+java -cp out DfaSimulation
+java -cp out NfaToDfa
+java -cp out DfaMinimization
+java -cp out DfaIntersection
+java -cp out PdaSimulation
+```

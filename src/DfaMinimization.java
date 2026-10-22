@@ -1,109 +1,70 @@
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.Scanner;
-import java.util.Set;
 
 public class DfaMinimization {
-    public static void run(Scanner scanner) {
-        System.out.println("\nDFA State Reduction (complete DFA required)");
-        System.out.print("States (space-separated): ");
-        String[] states = scanner.nextLine().trim().split("\\s+");
-        System.out.print("Alphabet (single characters, e.g. 01): ");
-        String alphabet = scanner.nextLine().trim();
-        System.out.print("Start state: ");
-        String start = scanner.nextLine().trim();
-        System.out.print("Final states (space-separated, or -): ");
-        Set<String> finals = readSet(scanner.nextLine());
+    public static void run(Scanner sc) {
+        System.out.print("Enter number of states: ");
+        int n = sc.nextInt();
 
-        Map<String, Map<Character, String>> transitions = new HashMap<>();
-        System.out.println("For each state, enter destinations in alphabet order.");
-        for (String state : states) {
-            System.out.print(state + ": ");
-            String[] destinations = scanner.nextLine().trim().split("\\s+");
-            Map<Character, String> row = new HashMap<>();
-            for (int i = 0; i < alphabet.length(); i++) {
-                row.put(alphabet.charAt(i), destinations[i]);
-            }
-            transitions.put(state, row);
+        int[][] t = new int[n][2];
+        System.out.println("Enter transitions for 0 and 1 for each state:");
+        for (int i = 0; i < n; i++) {
+            System.out.print("State q" + i + " (on 0 and 1): ");
+            t[i][0] = sc.nextInt();
+            t[i][1] = sc.nextInt();
         }
 
-        Set<String> reachable = new HashSet<>();
-        Queue<String> pending = new ArrayDeque<>();
-        reachable.add(start);
-        pending.add(start);
-        while (!pending.isEmpty()) {
-            String state = pending.remove();
-            for (char symbol : alphabet.toCharArray()) {
-                String destination = transitions.get(state).get(symbol);
-                if (reachable.add(destination)) {
-                    pending.add(destination);
+        System.out.print("Enter number of final states: ");
+        int f = sc.nextInt();
+        boolean[] fin = new boolean[n];
+        System.out.print("Enter final states: ");
+        for (int i = 0; i < f; i++) {
+            fin[sc.nextInt()] = true;
+        }
+
+        boolean[][] d = new boolean[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (fin[i] != fin[j]) {
+                    d[i][j] = true;
                 }
             }
         }
 
-        List<Set<String>> groups = new ArrayList<>();
-        Set<String> reachableFinals = new HashSet<>(reachable);
-        reachableFinals.retainAll(finals);
-        Set<String> reachableNonFinals = new HashSet<>(reachable);
-        reachableNonFinals.removeAll(finals);
-        if (!reachableFinals.isEmpty()) groups.add(reachableFinals);
-        if (!reachableNonFinals.isEmpty()) groups.add(reachableNonFinals);
-
-        boolean changed;
+        boolean change;
         do {
-            Map<String, Set<String>> refined = new LinkedHashMap<>();
-            Map<String, Integer> groupOf = groupLookup(groups);
-            for (String state : reachable) {
-                StringBuilder signature = new StringBuilder().append(groupOf.get(state));
-                for (char symbol : alphabet.toCharArray()) {
-                    signature.append(':').append(groupOf.get(transitions.get(state).get(symbol)));
+            change = false;
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    if (d[i][j]) continue;
+                    for (int s = 0; s < 2; s++) {
+                        int a = t[i][s];
+                        int b = t[j][s];
+                        if (a != b && d[Math.min(a, b)][Math.max(a, b)]) {
+                            d[i][j] = true;
+                            change = true;
+                            break;
+                        }
+                    }
                 }
-                refined.computeIfAbsent(signature.toString(), unused -> new HashSet<>()).add(state);
             }
-            List<Set<String>> nextGroups = new ArrayList<>(refined.values());
-            changed = nextGroups.size() != groups.size();
-            groups = nextGroups;
-        } while (changed);
+        } while (change);
 
-        Map<String, Integer> groupOf = groupLookup(groups);
-        System.out.println("\nMinimized DFA states:");
-        for (int i = 0; i < groups.size(); i++) {
-            Set<String> group = groups.get(i);
-            String label = name(group);
-            System.out.print(label + (group.contains(start) ? " (start)" : "")
-                    + (group.stream().anyMatch(finals::contains) ? " (final)" : "") + ": ");
-            String representative = group.iterator().next();
-            for (char symbol : alphabet.toCharArray()) {
-                String destination = transitions.get(representative).get(symbol);
-                System.out.print(symbol + " -> " + name(groups.get(groupOf.get(destination))) + "  ");
+        int groups = n;
+        System.out.println("Equivalent pairs:");
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (!d[i][j]) {
+                    System.out.println("q" + i + " = q" + j);
+                    groups--;
+                    break;
+                }
             }
-            System.out.println();
         }
+        System.out.println("Minimized states: " + groups + " from " + n + " states");
     }
 
-    private static Set<String> readSet(String line) {
-        Set<String> result = new HashSet<>();
-        if (!line.trim().equals("-")) {
-            for (String item : line.trim().split("\\s+")) result.add(item);
-        }
-        return result;
-    }
-
-    private static Map<String, Integer> groupLookup(List<Set<String>> groups) {
-        Map<String, Integer> result = new HashMap<>();
-        for (int i = 0; i < groups.size(); i++) {
-            for (String state : groups.get(i)) result.put(state, i);
-        }
-        return result;
-    }
-
-    private static String name(Set<String> states) {
-        return "{" + String.join(",", states.stream().sorted().toList()) + "}";
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        run(sc);
     }
 }
