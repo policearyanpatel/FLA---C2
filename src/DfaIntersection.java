@@ -5,35 +5,67 @@ public class DfaIntersection {
         System.out.print("Enter number of states for DFA 1: ");
         int n1 = sc.nextInt();
         int[][] first = new int[n1][2];
-        System.out.println("Enter transitions for 0 and 1 for DFA 1:");
+        System.out.println("Enter transitions for 0 and 1 for DFA 1 (state numbers 0 to " + (n1 - 1) + "):");
         for (int i = 0; i < n1; i++) {
             System.out.print("q" + i + " (on 0 and 1): ");
-            first[i][0] = sc.nextInt();
-            first[i][1] = sc.nextInt();
+            int next0 = sc.nextInt();
+            int next1 = sc.nextInt();
+            if (next0 < 0 || next0 >= n1 || next1 < 0 || next1 >= n1) {
+                System.out.println("Invalid state index in transition. Must be between 0 and " + (n1 - 1) + ".");
+                return;
+            }
+            first[i][0] = next0;
+            first[i][1] = next1;
         }
+
         System.out.print("Enter number of final states for DFA 1: ");
         int f1 = sc.nextInt();
+        if (f1 < 0 || f1 > n1) {
+            System.out.println("Invalid number of final states.");
+            return;
+        }
         boolean[] firstFinal = new boolean[n1];
-        System.out.print("Enter final states for DFA 1: ");
+        System.out.print("Enter final state numbers for DFA 1 (0 to " + (n1 - 1) + "): ");
         for (int i = 0; i < f1; i++) {
-            firstFinal[sc.nextInt()] = true;
+            int state = sc.nextInt();
+            if (state < 0 || state >= n1) {
+                System.out.println("Invalid final state index: " + state + ". Must be between 0 and " + (n1 - 1) + ".");
+                return;
+            }
+            firstFinal[state] = true;
         }
 
         System.out.print("Enter number of states for DFA 2: ");
         int n2 = sc.nextInt();
         int[][] second = new int[n2][2];
-        System.out.println("Enter transitions for 0 and 1 for DFA 2:");
+        System.out.println("Enter transitions for 0 and 1 for DFA 2 (state numbers 0 to " + (n2 - 1) + "):");
         for (int i = 0; i < n2; i++) {
             System.out.print("q" + i + " (on 0 and 1): ");
-            second[i][0] = sc.nextInt();
-            second[i][1] = sc.nextInt();
+            int next0 = sc.nextInt();
+            int next1 = sc.nextInt();
+            if (next0 < 0 || next0 >= n2 || next1 < 0 || next1 >= n2) {
+                System.out.println("Invalid state index in transition. Must be between 0 and " + (n2 - 1) + ".");
+                return;
+            }
+            second[i][0] = next0;
+            second[i][1] = next1;
         }
+
         System.out.print("Enter number of final states for DFA 2: ");
         int f2 = sc.nextInt();
+        if (f2 < 0 || f2 > n2) {
+            System.out.println("Invalid number of final states.");
+            return;
+        }
         boolean[] secondFinal = new boolean[n2];
-        System.out.print("Enter final states for DFA 2: ");
+        System.out.print("Enter final state numbers for DFA 2 (0 to " + (n2 - 1) + "): ");
         for (int i = 0; i < f2; i++) {
-            secondFinal[sc.nextInt()] = true;
+            int state = sc.nextInt();
+            if (state < 0 || state >= n2) {
+                System.out.println("Invalid final state index: " + state + ". Must be between 0 and " + (n2 - 1) + ".");
+                return;
+            }
+            secondFinal[state] = true;
         }
 
         System.out.println("Product DFA transitions (0, 1):");
